@@ -11,6 +11,8 @@ public class DestructibleObject : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.tag == "Attack")
+        {
             Destroy(gameObject);
 
             for (int i = 0; i < debrisCount; i++)
@@ -22,5 +24,6 @@ public class DestructibleObject : MonoBehaviour
                 Vector3 explosionDirection = collision.contacts[0].normal;
                 debris.GetComponent<Rigidbody>().AddForce(explosionDirection * explosionForce, ForceMode.Impulse);
             }
+        }
     }
 }

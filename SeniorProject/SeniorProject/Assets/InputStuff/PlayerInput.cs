@@ -15,6 +15,9 @@ public class PlayerInput : MonoBehaviour
     public GameObject theGround;
     public bool isCrouched = false;
     public GameObject playerModel;
+    public int[] playerAbilitySets;
+    private int abilitySet;
+    public float backwardsforce = -2f;
 
     // Start is called before the first frame update
     void Start()
@@ -33,6 +36,17 @@ public class PlayerInput : MonoBehaviour
             jump = false;
             isGrounded = false;
         }
+    }
+
+    public void OnAbility1()
+    {
+        player.AddForce(0, jumpheight, 0, ForceMode.Impulse);
+        player.AddForce(transform.forward * backwardsforce, ForceMode.Impulse);
+    }
+
+    public void OnSecondaryFire()
+    {
+        player.AddForce(transform.forward * -backwardsforce, ForceMode.Impulse);
     }
 
     void Run()

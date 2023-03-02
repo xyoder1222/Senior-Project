@@ -62,6 +62,42 @@ public partial class @Player : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Melee Attack"",
+                    ""type"": ""Button"",
+                    ""id"": ""65845cd5-d429-414a-b7f3-a373d3e10850"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Secondary Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""28ae0d56-a8fc-4e38-8dbb-d404a874ad3b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ability 1"",
+                    ""type"": ""Button"",
+                    ""id"": ""de694a21-7424-46b6-b495-1e2c941fedbe"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ability 2"",
+                    ""type"": ""Button"",
+                    ""id"": ""cbffe709-e74d-45cb-9a48-4536b90d74a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -152,6 +188,50 @@ public partial class @Player : IInputActionCollection2, IDisposable
                     ""action"": ""Walk"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e1a8e6bf-16db-46e4-8d5d-46057978ad59"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""96ab7f4e-9d51-4687-86e5-1b691488fb11"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Secondary Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""92aae022-393c-4431-95ef-3af41d05f224"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ability 1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8eec22c1-2b68-46f1-850b-9b1abdef150f"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ability 2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -212,6 +292,10 @@ public partial class @Player : IInputActionCollection2, IDisposable
         m_Movement_Jump = m_Movement.FindAction("Jump", throwIfNotFound: true);
         m_Movement_Crouch = m_Movement.FindAction("Crouch", throwIfNotFound: true);
         m_Movement_Look = m_Movement.FindAction("Look", throwIfNotFound: true);
+        m_Movement_MeleeAttack = m_Movement.FindAction("Melee Attack", throwIfNotFound: true);
+        m_Movement_SecondaryFire = m_Movement.FindAction("Secondary Fire", throwIfNotFound: true);
+        m_Movement_Ability1 = m_Movement.FindAction("Ability 1", throwIfNotFound: true);
+        m_Movement_Ability2 = m_Movement.FindAction("Ability 2", throwIfNotFound: true);
         // GunMechanics
         m_GunMechanics = asset.FindActionMap("GunMechanics", throwIfNotFound: true);
         m_GunMechanics_Shoot = m_GunMechanics.FindAction("Shoot", throwIfNotFound: true);
@@ -279,6 +363,10 @@ public partial class @Player : IInputActionCollection2, IDisposable
     private readonly InputAction m_Movement_Jump;
     private readonly InputAction m_Movement_Crouch;
     private readonly InputAction m_Movement_Look;
+    private readonly InputAction m_Movement_MeleeAttack;
+    private readonly InputAction m_Movement_SecondaryFire;
+    private readonly InputAction m_Movement_Ability1;
+    private readonly InputAction m_Movement_Ability2;
     public struct MovementActions
     {
         private @Player m_Wrapper;
@@ -287,6 +375,10 @@ public partial class @Player : IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Movement_Jump;
         public InputAction @Crouch => m_Wrapper.m_Movement_Crouch;
         public InputAction @Look => m_Wrapper.m_Movement_Look;
+        public InputAction @MeleeAttack => m_Wrapper.m_Movement_MeleeAttack;
+        public InputAction @SecondaryFire => m_Wrapper.m_Movement_SecondaryFire;
+        public InputAction @Ability1 => m_Wrapper.m_Movement_Ability1;
+        public InputAction @Ability2 => m_Wrapper.m_Movement_Ability2;
         public InputActionMap Get() { return m_Wrapper.m_Movement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -308,6 +400,18 @@ public partial class @Player : IInputActionCollection2, IDisposable
                 @Look.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnLook;
                 @Look.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnLook;
                 @Look.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnLook;
+                @MeleeAttack.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnMeleeAttack;
+                @MeleeAttack.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnMeleeAttack;
+                @MeleeAttack.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnMeleeAttack;
+                @SecondaryFire.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnSecondaryFire;
+                @SecondaryFire.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnSecondaryFire;
+                @SecondaryFire.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnSecondaryFire;
+                @Ability1.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility1;
+                @Ability1.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility1;
+                @Ability1.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility1;
+                @Ability2.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility2;
+                @Ability2.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility2;
+                @Ability2.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnAbility2;
             }
             m_Wrapper.m_MovementActionsCallbackInterface = instance;
             if (instance != null)
@@ -324,6 +428,18 @@ public partial class @Player : IInputActionCollection2, IDisposable
                 @Look.started += instance.OnLook;
                 @Look.performed += instance.OnLook;
                 @Look.canceled += instance.OnLook;
+                @MeleeAttack.started += instance.OnMeleeAttack;
+                @MeleeAttack.performed += instance.OnMeleeAttack;
+                @MeleeAttack.canceled += instance.OnMeleeAttack;
+                @SecondaryFire.started += instance.OnSecondaryFire;
+                @SecondaryFire.performed += instance.OnSecondaryFire;
+                @SecondaryFire.canceled += instance.OnSecondaryFire;
+                @Ability1.started += instance.OnAbility1;
+                @Ability1.performed += instance.OnAbility1;
+                @Ability1.canceled += instance.OnAbility1;
+                @Ability2.started += instance.OnAbility2;
+                @Ability2.performed += instance.OnAbility2;
+                @Ability2.canceled += instance.OnAbility2;
             }
         }
     }
@@ -375,6 +491,10 @@ public partial class @Player : IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
+        void OnMeleeAttack(InputAction.CallbackContext context);
+        void OnSecondaryFire(InputAction.CallbackContext context);
+        void OnAbility1(InputAction.CallbackContext context);
+        void OnAbility2(InputAction.CallbackContext context);
     }
     public interface IGunMechanicsActions
     {
