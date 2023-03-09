@@ -18,6 +18,16 @@ public class PlayerInput : MonoBehaviour
     public int[] playerAbilitySets;
     private int abilitySet;
     public float backwardsforce = -2f;
+    public ParticleSystem smokescreen;
+    public Vector3 playerLocation;
+    public float invisibleDuration = 5f;
+    public MeshRenderer playerRenderer;
+    public GameObject grenade;
+    public float throwForce = 500f, throwUpForce = 100f;
+    [SerializeField] private Rigidbody grenadeRB;
+    public Transform throwPosition;
+    public Transform grenadeSpawnPos;
+    public Camera main;
 
     // Start is called before the first frame update
     void Start()
@@ -40,13 +50,22 @@ public class PlayerInput : MonoBehaviour
 
     public void OnAbility1()
     {
-        player.AddForce(0, jumpheight, 0, ForceMode.Impulse);
-        player.AddForce(transform.forward * backwardsforce, ForceMode.Impulse);
+        playerLocation = new Vector3(player.transform.position.x, player.transform.position.y, player.transform.position.z);
+        Quaternion rotation = Quaternion.identity;
+        ParticleSystem playerSmokeScreen = Instantiate(smokescreen, playerLocation, rotation);
+        playerRenderer.enabled = false;
+        Destroy(playerSmokeScreen, 5f);
+        StartCoroutine(InvisibilityDuration());
     }
 
     public void OnSecondaryFire()
     {
-        player.AddForce(transform.forward * -backwardsforce, ForceMode.Impulse);
+        Quaternion rotation = Quaternion.identity;
+        GameObject grenadeThrown = Instantiate(grenade, grenadeSpawnPos.position, rotation);
+        grenadeRB = grenadeThrown.GetComponent<Rigidbody>();
+        grenadeRB.isKinematic = false;
+        Vector3 throwVector = main.transform.forward * throwForce + player.transform.up * throwUpForce;
+        grenadeRB.AddForce(throwVector, ForceMode.Impulse);
     }
 
     void Run()
@@ -88,5 +107,11 @@ public class PlayerInput : MonoBehaviour
             playerModel.transform.localScale += new Vector3(0, .5f, 0);
             isCrouched = false;
         }
+    }
+
+    IEnumerator InvisibilityDuration()
+    {
+        yield return new WaitForSeconds(invisibleDuration);
+        playerRenderer.enabled = true;
     }
 }
