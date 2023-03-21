@@ -23,11 +23,21 @@ public class PlayerInput : MonoBehaviour
     public float invisibleDuration = 5f;
     public MeshRenderer playerRenderer;
     public GameObject grenade;
-    public float throwForce = 500f, throwUpForce = 100f;
+    public float grenadethrowForce, axethrowForce, throwUpForce;
     [SerializeField] private Rigidbody grenadeRB;
     public Transform throwPosition;
     public Transform grenadeSpawnPos;
     public Camera main;
+    public Transform axeSpawnPoint;
+    [SerializeField] private Rigidbody axeRB;
+    public GameObject axe;
+    public GameObject mine, teleporter;
+    public Transform mineTelePoss;
+    private bool isTeleporterSet, isMinSet = false;
+    private GameObject teleporterPlace, minePlace;
+    public float radius = 5f;
+    public float force = 700f;
+    public GameObject explsionFX;
 
     // Start is called before the first frame update
     void Start()
@@ -50,12 +60,52 @@ public class PlayerInput : MonoBehaviour
 
     public void OnAbility1()
     {
-        playerLocation = new Vector3(player.transform.position.x, player.transform.position.y, player.transform.position.z);
-        Quaternion rotation = Quaternion.identity;
-        ParticleSystem playerSmokeScreen = Instantiate(smokescreen, playerLocation, rotation);
-        playerRenderer.enabled = false;
-        Destroy(playerSmokeScreen, 5f);
-        StartCoroutine(InvisibilityDuration());
+        if (isTeleporterSet == false)
+        {
+            Quaternion rotation = Quaternion.identity;
+            teleporterPlace = Instantiate(teleporter, mineTelePoss.position, rotation);
+            isTeleporterSet = true;
+        }
+        else
+        {
+            transform.position = teleporter.transform.position;
+            Destroy(teleporterPlace);
+            isTeleporterSet = false;
+        }
+    }
+
+    public void OnAbility2()
+    {
+        if(isMinSet == false)
+        { 
+            Quaternion rotation = Quaternion.identity;
+            minePlace = Instantiate(mine, mineTelePoss.position, rotation);
+            isMinSet = true;
+        }
+        else
+        {
+            GameObject Explosion = Instantiate(explsionFX, minePlace.transform.position, minePlace.transform.rotation);
+
+            Collider[] colliders = Physics.OverlapSphere(minePlace.transform.position, radius);
+
+            foreach (Collider nearbyObject in colliders)
+            {
+                Rigidbody rb = nearbyObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.AddExplosionForce(force, minePlace.transform.position, radius);
+                }
+            }
+
+            Destroy(minePlace);
+            Destroy(Explosion, 1f);
+            isMinSet = false;
+        }
+    }
+
+    public void OnPrimaryFire()
+    {
+
     }
 
     public void OnSecondaryFire()
@@ -64,8 +114,41 @@ public class PlayerInput : MonoBehaviour
         GameObject grenadeThrown = Instantiate(grenade, grenadeSpawnPos.position, rotation);
         grenadeRB = grenadeThrown.GetComponent<Rigidbody>();
         grenadeRB.isKinematic = false;
-        Vector3 throwVector = main.transform.forward * throwForce + player.transform.up * throwUpForce;
+
+        Vector3 forceDirection = main.transform.forward;
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(main.transform.position, main.transform.forward, out hit, 500f))
+        {
+            forceDirection = (hit.point - axeSpawnPoint.position).normalized;
+        }
+        Vector3 throwVector = forceDirection * grenadethrowForce * throwUpForce;
         grenadeRB.AddForce(throwVector, ForceMode.Impulse);
+        grenadeRB.AddTorque(transform.right * 99999999f, ForceMode.Impulse);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(isMinSet && other.CompareTag("Enemy"))
+        {
+            GameObject Explosion = Instantiate(explsionFX, minePlace.transform.position, minePlace.transform.rotation);
+
+            Collider[] colliders = Physics.OverlapSphere(minePlace.transform.position, radius);
+
+            foreach (Collider nearbyObject in colliders)
+            {
+                Rigidbody rb = nearbyObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.AddExplosionForce(force, minePlace.transform.position, radius);
+                }
+            }
+
+            Destroy(minePlace);
+            Destroy(Explosion, 1f);
+            isMinSet = false;
+        }
     }
 
     void Run()
